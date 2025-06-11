@@ -15,6 +15,8 @@
   },
   "private": true,
   "dependencies": {
+    "@nestjs/typeorm": "11.0.0",
+    "typeorm": "0.3.24",
     "@mikro-orm/core": "6.4.16",
     "@mikro-orm/nestjs": "6.1.1",
     "@mikro-orm/postgresql": "6.4.16",

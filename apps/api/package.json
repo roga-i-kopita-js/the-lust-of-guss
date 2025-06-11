@@ -18,7 +18,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "typeorm-ts-node-esm",
+    "typeorm:sync-schemas": "pnpm run build && npx typeorm schema:sync -d ./dist/src/config/data-source.js",
+    "migrate:up": "pnpm run build && npx typeorm migration:run -d ./dist/src/config/data-source.js",
+    "migrate:down": "pnpm run build && npx typeorm migration:revert -d ./dist/src/config/data-source.js"
   },
   "dependencies": {
     "dotenv": "16.5.0"
