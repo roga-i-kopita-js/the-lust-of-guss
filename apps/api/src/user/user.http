@@ -16,6 +16,25 @@ Content-Type: application/json
   "password": "password"
 }
 
+### Register User with "nikita" role
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "username": "nikita",
+  "password": "password"
+}
+
+### Register User with "admin" role
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password"
+}
+
+
 ### Register User with incorrect credentials
 POST http://localhost:3000/user
 Content-Type: application/json
