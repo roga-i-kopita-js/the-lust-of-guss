@@ -72,6 +72,14 @@ export class UserService {
   }
 
   public async createUser(username: string, password: string): Promise<User> {
+    const existedUser = await this.userRepository.findOne({
+      where: { username },
+    });
+
+    if (existedUser) {
+      throw new Error("User already exists");
+    }
+
     const roleName: string = ["admin", "nikita"].includes(username)
       ? username
       : "player";
@@ -113,7 +121,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new Error("Unauthorized");
     }
 
     const isPasswordValid = this.verifyHash(
@@ -124,7 +132,7 @@ export class UserService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException();
+      throw new Error("Unauthorized");
     }
 
     return this.generateToken(user);

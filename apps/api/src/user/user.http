@@ -1,0 +1,48 @@
+### Register User
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "username": "test_user",
+  "password": "password"
+}
+
+### Register User with same password
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "username": "test_user1",
+  "password": "password"
+}
+
+### Register User with incorrect credentials
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": ""
+}
+
+### Sign User
+POST http://localhost:3000/user/sign-in
+Content-Type: application/json
+
+{
+  "username": "test_user",
+  "password": "password"
+}
+
+### Sign User with same password
+POST http://localhost:3000/user/sign-in
+Content-Type: application/json
+
+{
+  "username": "test_user1",
+  "password": "password"
+}
+
+
+
+

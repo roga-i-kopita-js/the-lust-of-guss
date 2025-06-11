@@ -22,7 +22,10 @@
     "typeorm": "typeorm-ts-node-esm",
     "typeorm:sync-schemas": "pnpm run build && npx typeorm schema:sync -d ./dist/src/config/data-source.js",
     "migrate:up": "pnpm run build && npx typeorm migration:run -d ./dist/src/config/data-source.js",
-    "migrate:down": "pnpm run build && npx typeorm migration:revert -d ./dist/src/config/data-source.js"
+    "migrate:down": "pnpm run build && npx typeorm migration:revert -d ./dist/src/config/data-source.js",
+    "generate:module": "nest g mo",
+    "generate:controller": "nest g co",
+    "generate:service": "nest g s"
   },
   "dependencies": {
     "dotenv": "16.5.0"

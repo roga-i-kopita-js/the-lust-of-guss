@@ -27,6 +27,7 @@
     "@nestjs/jwt": "11.0.0",
     "reflect-metadata": "0.2.2",
     "class-validator": "0.14.2",
+    "class-transformer": "0.5.1",
     "rxjs": "7.8.2",
     "dotenv": "16.5.0"
   },
