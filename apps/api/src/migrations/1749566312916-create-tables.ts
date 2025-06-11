@@ -117,7 +117,12 @@ export class CreateRoleTables1749566312916 implements MigrationInterface {
           {
             name: "password",
             type: "varchar",
-            length: "120",
+            length: "220",
+          },
+          {
+            name: "salt",
+            type: "varchar",
+            length: "200",
           },
           {
             name: "roleId",

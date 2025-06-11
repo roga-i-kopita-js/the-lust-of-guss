@@ -16,8 +16,11 @@ export class User {
   @Column({ unique: true, length: 30 })
   username: string;
 
-  @Column({ type: "varchar", length: 120 })
+  @Column({ type: "varchar", length: 220 })
   password: string;
+
+  @Column({ type: "varchar", length: 200 })
+  salt: string;
 
   @ManyToOne(() => Role, (role) => role.users, { onDelete: "CASCADE" })
   role: Role;
