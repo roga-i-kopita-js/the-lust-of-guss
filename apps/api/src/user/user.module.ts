@@ -4,7 +4,7 @@ import { UserService } from "./user.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "../entities/User.entity";
 import { JwtModule } from "@nestjs/jwt";
-import { jwtConfig } from "../config/jwt-config";
+import { jwtConfig } from "../config/jwt.config";
 import { Role } from "../entities/Role.entity";
 import { AuthGuard } from "./auth.guard";
 

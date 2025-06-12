@@ -5,6 +5,7 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ormConfig } from "./config/orm.config";
 import { UserModule } from "./user/user.module";
+import { RedisModule } from "./redis/redis.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserModule } from "./user/user.module";
     }),
     TypeOrmModule.forRoot(ormConfig),
     UserModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -80,6 +80,11 @@ export class UserService {
       throw new Error("User already exists");
     }
 
+    /**
+     *  Назначаем роль в зависмости от ника
+     *  Например, если username - admin, то роль admin,
+     *  если username Никита, то роль nikita.Иначе Player
+     */
     const roleName: string = ["admin", "nikita"].includes(username)
       ? username
       : "player";
