@@ -13,6 +13,9 @@ export class Round {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Column({ length: 60, unique: true })
+  name: string;
+
   @Column({ type: "timestamptz" })
   startedAt: Date;
 

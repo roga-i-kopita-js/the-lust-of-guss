@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { createHmac, randomBytes } from "node:crypto";
 import { Repository } from "typeorm";
 import { User } from "../entities/User.entity";
@@ -72,14 +72,6 @@ export class UserService {
   }
 
   public async createUser(username: string, password: string): Promise<User> {
-    const existedUser = await this.userRepository.findOne({
-      where: { username },
-    });
-
-    if (existedUser) {
-      throw new Error("User already exists");
-    }
-
     /**
      *  Назначаем роль в зависмости от ника
      *  Например, если username - admin, то роль admin,

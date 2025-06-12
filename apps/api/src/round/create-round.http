@@ -1,0 +1,10 @@
+### Register User
+POST http://localhost:3000/round/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ODczM2U3LWY2MjEtNGI0OS04NzFhLTI4ZjRkNDg0YTI1YSIsInVzZXJuYW1lIjoiYWRtaW4iLCJzYWx0IjoiZjNlM2YyNjBjZDM4Y2ZmMWM4ZmRmOTAxODA4ZDhhYTQ0OWZmNzMzZWJiNjJmOGQ3NjY1YiIsInJvbGUiOnsiaWQiOiJkZjNjYTc4ZC0yYWY0LTQ5M2UtODI5Mi1kYzViMDQ5ODMxZmUiLCJuYW1lIjoiYWRtaW4ifSwiaWF0IjoxNzQ5NzY3MTY4LCJleHAiOjE3NDk4NTM1Njh9.hlj1dlabvT6Xk-4bi_rw48uvg2uip0PFAYyfRvTXpmk
+
+{
+  "name": "test round",
+  "startedAt": "2025-06-13T02:34:59.000",
+  "endedAt": "2025-06-13T02:34:59.000"
+}

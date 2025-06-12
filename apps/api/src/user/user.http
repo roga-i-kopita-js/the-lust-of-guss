@@ -63,5 +63,12 @@ Content-Type: application/json
 }
 
 
+### Sign Admin User
+POST http://localhost:3000/user/sign-in
+Content-Type: application/json
 
+{
+  "username": "admin",
+  "password": "password"
+}
 
