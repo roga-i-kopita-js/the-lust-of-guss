@@ -7,13 +7,16 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { ConfigService } from "@nestjs/config";
-import { User } from "../entities/User.entity";
+import { Reflector } from "@nestjs/core";
+import { RoleArray, ROLES_KEY } from "./roles.decorator";
+import { ParsedToken } from "./user.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    private reflector: Reflector,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -25,13 +28,34 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      request["user"] = this.jwtService.verify<User>(token, {
+      const tokenMeta = this.jwtService.verify<ParsedToken>(token, {
         secret: this.configService.get<string>("APP_JWT_SECRET_KEY"),
       });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      request["tokenMeta"] = tokenMeta;
+
+      const requiredRoles = this.reflector.getAllAndOverride<RoleArray>(
+        ROLES_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+      // если роли переданы проводим проверку на предоставленные пермишины
+      if (requiredRoles?.length) {
+        for (const item of requiredRoles) {
+          if (!tokenMeta.role.permissions[item.action]) {
+            throw new Error("forbidden");
+          }
+
+          if (!tokenMeta.role.permissions[item.action].includes(item.action)) {
+            throw new Error("forbidden");
+          }
+        }
+      }
     } catch {
       throw new UnauthorizedException();
     }
+
     return true;
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { createHmac, randomBytes } from "node:crypto";
 import { Repository } from "typeorm";
 import { User } from "../entities/User.entity";
@@ -24,6 +24,16 @@ export interface HashWithSalt {
 }
 
 const SALT_LENGTH = 26;
+
+type EntityName = string;
+type ActionList = Array<string>;
+export type ParsedToken = {
+  id: string;
+  role: {
+    name: string;
+    permissions: Record<EntityName, ActionList>;
+  };
+};
 
 @Injectable()
 export class UserService {
@@ -61,10 +71,23 @@ export class UserService {
   }
 
   protected generateToken(user: User): Token {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...tokenInfo } = user;
+    const permissions: ParsedToken["role"]["permissions"] = {};
+    user.role.permissions.forEach((permission) => {
+      if (!permissions[permission.entity]) {
+        permissions[permission.entity] = [permission.action];
+      } else {
+        permissions[permission.entity].push(permission.action);
+      }
+    });
 
-    const token = this.jwtService.sign(tokenInfo, {
+    const data: ParsedToken = {
+      id: user.id,
+      role: {
+        name: user.role.name,
+        permissions,
+      },
+    };
+    const token = this.jwtService.sign(data, {
       secret: this.configService.get<string>("APP_JWT_SECRET_KEY"),
     });
 
@@ -86,7 +109,14 @@ export class UserService {
       this.configService.get<string>("APP_PASSWORD_SECRET_KEY") ?? "",
     );
 
-    const role = await this.roleRepository.findOneByOrFail({ name: roleName });
+    const role = await this.roleRepository.findOne({
+      where: { name: roleName },
+      relations: ["permissions"],
+    });
+
+    if (!role) {
+      throw new Error("something went wrong, role must be exist");
+    }
 
     const user = this.userRepository.create({
       username,
@@ -113,8 +143,9 @@ export class UserService {
     const secret =
       this.configService.get<string>("APP_PASSWORD_SECRET_KEY") ?? "";
 
-    const user = await this.userRepository.findOneBy({
-      username,
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: ["role", "role.permissions"],
     });
 
     if (!user) {

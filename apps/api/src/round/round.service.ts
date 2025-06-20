@@ -17,21 +17,7 @@ export class RoundService {
     protected roundRepository: Repository<Round>,
   ) {}
 
-  public async createRound(
-    roundData: CreateRound,
-    userId: string,
-  ): Promise<Round> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: ["role"],
-    });
-
-    if (user?.role.name !== "admin") {
-      throw new Error("Access denied");
-    }
-
-    const round = this.roundRepository.create(roundData);
-
-    return this.roundRepository.save(round);
+  public async createRound(roundData: CreateRound): Promise<Round> {
+    return this.roundRepository.save(this.roundRepository.create(roundData));
   }
 }
