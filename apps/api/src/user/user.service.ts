@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { createHmac, randomBytes } from "node:crypto";
 import { Repository } from "typeorm";
 import { User } from "../entities/User.entity";
@@ -45,6 +45,7 @@ export class UserService {
     @InjectRepository(Role)
     protected roleRepository: Repository<Role>,
   ) {}
+  private readonly logger = new Logger(UserService.name);
 
   protected createHash(value: string, secret: string): HashWithSalt {
     const salt = randomBytes(SALT_LENGTH).toString("hex");
@@ -109,14 +110,10 @@ export class UserService {
       this.configService.get<string>("APP_PASSWORD_SECRET_KEY") ?? "",
     );
 
-    const role = await this.roleRepository.findOne({
+    const role = await this.roleRepository.findOneOrFail({
       where: { name: roleName },
       relations: ["permissions"],
     });
-
-    if (!role) {
-      throw new Error("something went wrong, role must be exist");
-    }
 
     const user = this.userRepository.create({
       username,
@@ -126,7 +123,9 @@ export class UserService {
     });
 
     await this.userRepository.save(user);
-
+    this.logger.log(
+      `User created successfully. id: ${user.id} with role ${role.name}`,
+    );
     return user;
   }
 
@@ -143,14 +142,10 @@ export class UserService {
     const secret =
       this.configService.get<string>("APP_PASSWORD_SECRET_KEY") ?? "";
 
-    const user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOneOrFail({
       where: { username },
       relations: ["role", "role.permissions"],
     });
-
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
 
     const isPasswordValid = this.verifyHash(
       password,
@@ -163,6 +158,9 @@ export class UserService {
       throw new Error("Unauthorized");
     }
 
+    this.logger.log(
+      `User signed successfully. id: ${user.id} with role ${user.role.name}`,
+    );
     return this.generateToken(user);
   }
 

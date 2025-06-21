@@ -54,9 +54,9 @@ export class CreateRoles1749567079166 implements MigrationInterface {
     const nikitaRole = await roleRepo.findOneByOrFail({ name: "nikita" });
 
     // Устанавливаем связи с пермишенами
-    adminRole.permissions = [create, read, update, _delete];
+    adminRole.permissions = [create, read, _delete];
     playerRole.permissions = [read, update];
-    nikitaRole.permissions = [read]; // уже есть, но лучше явно установить
+    nikitaRole.permissions = [read, update];
 
     await roleRepo.save([adminRole, playerRole, nikitaRole]);
   }

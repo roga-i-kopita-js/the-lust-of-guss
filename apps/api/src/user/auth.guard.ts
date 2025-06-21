@@ -43,11 +43,13 @@ export class AuthGuard implements CanActivate {
       // если роли переданы проводим проверку на предоставленные пермишины
       if (requiredRoles?.length) {
         for (const item of requiredRoles) {
-          if (!tokenMeta.role.permissions[item.action]) {
+          // если вообще нет такой сущности то реджектим
+          if (!tokenMeta.role.permissions[item.entity]) {
             throw new Error("forbidden");
           }
 
-          if (!tokenMeta.role.permissions[item.action].includes(item.action)) {
+          // или если отсутствуют пермишины, то тоже реджектим
+          if (!tokenMeta.role.permissions[item.entity].includes(item.action)) {
             throw new Error("forbidden");
           }
         }

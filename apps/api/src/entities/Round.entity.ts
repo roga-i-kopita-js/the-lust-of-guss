@@ -5,6 +5,7 @@ import {
   OneToMany,
   Unique,
   ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import { User } from "./User.entity";
 
@@ -16,6 +17,12 @@ export class Round {
   @Column({ length: 60, unique: true })
   name: string;
 
+  @Column({ type: "integer", nullable: false })
+  hp: number;
+
+  @Column({ type: "integer", nullable: false })
+  touchedHp: number;
+
   @Column({ type: "timestamptz" })
   startedAt: Date;
 
@@ -24,6 +31,10 @@ export class Round {
 
   @OneToMany(() => PlayerRound, (pr) => pr.round)
   participants: PlayerRound[];
+
+  @ManyToOne(() => User, (pr) => pr)
+  @JoinColumn({ name: "winnerId" })
+  winner: User;
 }
 
 @Entity()

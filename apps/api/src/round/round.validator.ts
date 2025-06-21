@@ -1,7 +1,8 @@
 import {
   IsISO8601,
+  IsNumber,
+  IsOptional,
   IsString,
-  isString,
   MaxLength,
   MinLength,
 } from "class-validator";
@@ -22,4 +23,32 @@ export class CreateRound {
 
   @IsISO8601()
   endedAt: Date;
+}
+
+export class PlayRound {
+  @IsString()
+  @MinLength(1)
+  id: string;
+}
+
+export class RoundListOptions {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @IsOptional()
+  @IsNumber()
+  offset?: number;
+
+  @IsOptional()
+  @IsNumber()
+  limit?: number;
+
+  @IsOptional()
+  @IsISO8601()
+  startedAt?: Date;
+
+  @IsOptional()
+  @IsISO8601()
+  endedAt?: Date;
 }

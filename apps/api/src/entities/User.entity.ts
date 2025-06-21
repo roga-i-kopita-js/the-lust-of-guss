@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 import { Role } from "./Role.entity";
 import { PlayerRound } from "./Round.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class User {
@@ -16,9 +17,11 @@ export class User {
   @Column({ unique: true, length: 30 })
   username: string;
 
+  @Exclude()
   @Column({ type: "varchar", length: 220 })
   password: string;
 
+  @Exclude()
   @Column({ type: "varchar", length: 200 })
   salt: string;
 

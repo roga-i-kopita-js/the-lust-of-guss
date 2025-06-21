@@ -156,11 +156,24 @@ export class CreateRoleTables1749566312916 implements MigrationInterface {
             isGenerated: true,
           },
           { name: "name", type: "varchar", length: "60", isUnique: true },
+          { name: "hp", type: "integer" },
+          { name: "touchedHp", type: "integer" },
           { name: "startedAt", type: "timestamptz", isNullable: false },
           { name: "endedAt", type: "timestamptz", isNullable: false },
+          { name: "winnerId", type: "uuid", isNullable: true },
         ],
       }),
       true,
+    );
+
+    await queryRunner.createForeignKey(
+      "round",
+      new TableForeignKey({
+        columnNames: ["winnerId"],
+        referencedTableName: "user",
+        referencedColumnNames: ["id"],
+        onDelete: "SET NULL",
+      }),
     );
 
     // Создание таблицы "player_round"
