@@ -282,6 +282,8 @@ export class RoundService {
     // вычисляем победителя
     let winnerId: string | null = null;
     let prevClicksCount: number = -1;
+    let touchedHp: number = 0;
+
     for (let i = 0; i < entries.length; i += 2) {
       const clicks = parseInt(entries[i + 1], 10);
       const player = entries[i].replace("player:", "");
@@ -289,6 +291,7 @@ export class RoundService {
         prevClicksCount = clicks;
         winnerId = player;
       }
+      touchedHp += clicks;
       stats.push({
         playerId: player,
         clicks,
@@ -321,7 +324,7 @@ export class RoundService {
         // обновляем сам раунд
         await manager
           .getRepository(Round)
-          .update({ id: gameId }, { winner, touchedHp: roundData.touchedHp });
+          .update({ id: gameId }, { winner, touchedHp });
       });
     }
 

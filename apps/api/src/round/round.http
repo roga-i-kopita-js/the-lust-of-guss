@@ -4,9 +4,9 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhiMmNjN2YxLTAxZjktNDk1Zi04M2IwLTk2ZDg3MzZiMzlkYSIsInJvbGUiOnsibmFtZSI6ImFkbWluIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsiY3JlYXRlIiwicmVhZCIsImRlbGV0ZSJdfX0sImlhdCI6MTc1MDUwMzUwOCwiZXhwIjoxNzUwNTg5OTA4fQ.toZyCDa158p0bW2IFflg1ujhxIXVL4nx6qMsK5oVD7o
 
 {
-  "name": "test round 2",
+  "name": "test round 1",
   "startedAt": "2025-06-21T22:30:45.134Z",
-  "endedAt": "2025-06-21T23:18:00.134Z"
+  "endedAt": "2025-06-21T23:47:00.134Z"
 }
 
 ### Touch Admin
@@ -15,7 +15,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhiMmNjN2YxLTAxZjktNDk1Zi04M2IwLTk2ZDg3MzZiMzlkYSIsInJvbGUiOnsibmFtZSI6ImFkbWluIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsiY3JlYXRlIiwicmVhZCIsImRlbGV0ZSJdfX0sImlhdCI6MTc1MDUwMzUwOCwiZXhwIjoxNzUwNTg5OTA4fQ.toZyCDa158p0bW2IFflg1ujhxIXVL4nx6qMsK5oVD7o
 
 {
-  "id": "4d18bf7a-8645-4ef8-8a03-cefc51423eb6"
+  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
 }
 
 ### Hit Nikita
@@ -24,7 +24,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxNmQyNzgxLWMwN2EtNDk1MC04ODhhLWI2ZmI5MjhmMWNjZSIsInJvbGUiOnsibmFtZSI6Im5pa2l0YSIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDM0ODYsImV4cCI6MTc1MDU4OTg4Nn0.1c2hCCbaXRjnmECRP5wJwYDyBvaHqHlzwMlv07txQWU
 
 {
-  "id": "4d18bf7a-8645-4ef8-8a03-cefc51423eb6"
+  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
 }
 
 ### Hit Player 1
@@ -33,7 +33,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwYzljNzVmLWQxOTctNDdhNS04NjgxLTYxZDBkYmQyMWY0ZiIsInJvbGUiOnsibmFtZSI6InBsYXllciIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDMzOTQsImV4cCI6MTc1MDU4OTc5NH0.Q37vf34bjxb6dvzQais_BM3BeScifwr7n7XguT2djLs
 
 {
-  "id": "4d18bf7a-8645-4ef8-8a03-cefc51423eb6"
+  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
 }
 
 ### Hit Player 2
@@ -42,7 +42,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZjMDA4YzdmLTAwYWEtNGRmMS04NTVmLTE3NTUxOTI4ZTA2ZSIsInJvbGUiOnsibmFtZSI6InBsYXllciIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDM0NTcsImV4cCI6MTc1MDU4OTg1N30.nbMiUhEJWEssJeWq9nJxAskoSNtU8WwvdV_piimcZ5M
 
 {
-  "id": "4d18bf7a-8645-4ef8-8a03-cefc51423eb6"
+  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
 }
 
 ### Get rounds
