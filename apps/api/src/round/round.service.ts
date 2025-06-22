@@ -46,6 +46,13 @@ export class RoundService {
   protected readonly startedHp: number = 0;
   protected readonly defaultHp: number = 100;
 
+  public async getGameById(id: string): Promise<Round> {
+    return this.roundRepository.findOneOrFail({
+      where: { id },
+      relations: ["winner", "participants", "participants.player"],
+    });
+  }
+
   public async createRound(
     roundData: CreateRound,
     meta: ParsedToken,
@@ -58,10 +65,7 @@ export class RoundService {
       }),
     );
 
-    const game = await this.roundRepository.findOneOrFail({
-      where: { id: initialRound.id },
-      relations: ["winner", "participants", "participants.player"],
-    });
+    const game = await this.getGameById(initialRound.id);
 
     await this.initializeGameInRedis(game, meta);
     this.logger.log(`round with id: ${game.id} was created successfully.`);
@@ -141,7 +145,7 @@ export class RoundService {
     }
   }
 
-  protected getFinishedRound(game: Round): HitInfo {
+  public getFinishedRound(game: Round): HitInfo {
     const score = game.participants.find((p) => p.player.id === game.winner.id);
     if (!score) {
       this.logger.error(
@@ -339,11 +343,7 @@ export class RoundService {
   }
 
   public async hit(gameId: string, meta: ParsedToken): Promise<HitInfo> {
-    const game = await this.roundRepository.findOneOrFail({
-      where: { id: gameId },
-      relations: ["winner", "participants", "participants.player"],
-    });
-
+    const game = await this.getGameById(gameId);
     // проверяем можно ли вообще поиграть в эту игру в текущее время
     this.validateDate(game);
 

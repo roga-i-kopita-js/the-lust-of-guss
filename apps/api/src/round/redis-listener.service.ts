@@ -1,10 +1,14 @@
-import { Injectable, OnModuleInit, Logger, Inject } from "@nestjs/common";
+import {
+  Injectable,
+  OnModuleInit,
+  Logger,
+  Inject,
+  forwardRef,
+} from "@nestjs/common";
 import { Redis } from "ioredis";
-import { REDIS_CLIENT, REDIS_SUBSCRIBER } from "../redis/redis.constants";
+import { REDIS_SUBSCRIBER } from "../redis/redis.constants";
 import { RoundService } from "./round.service";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Round } from "../entities/Round.entity";
-import { Repository } from "typeorm";
+import { RoundGateway } from "./round.gateway";
 
 @Injectable()
 export class RedisListenerService implements OnModuleInit {
@@ -13,8 +17,8 @@ export class RedisListenerService implements OnModuleInit {
   constructor(
     @Inject(REDIS_SUBSCRIBER) private readonly sub: Redis,
     private readonly roundService: RoundService,
-    @InjectRepository(Round)
-    protected roundRepository: Repository<Round>,
+    @Inject(forwardRef(() => RoundGateway))
+    private readonly gateway: RoundGateway,
   ) {}
 
   protected async subscribe(key: string): Promise<void> {
@@ -23,11 +27,12 @@ export class RedisListenerService implements OnModuleInit {
       this.logger.log(`TTL expired for game ${gameId}, auto-flushing`);
 
       try {
-        const game = await this.roundRepository.findOneOrFail({
-          where: { id: gameId },
-          relations: ["winner", "participants", "participants.player"],
-        });
+        const game = await this.roundService.getGameById(gameId);
         await this.roundService.flushGame(game);
+
+        this.gateway.server
+          .to(gameId)
+          .emit("finished", this.roundService.getFinishedRound(game));
       } catch (err) {
         this.logger.error(err);
       }
