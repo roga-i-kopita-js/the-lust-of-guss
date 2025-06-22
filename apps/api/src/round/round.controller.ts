@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { CreateRound, PlayRound, RoundListOptions } from "./round.validator";
 import { Round } from "../entities/Round.entity";
-import { HitInfo, RoundService } from "./round.service";
+import { HitInfo, RoundListResponse, RoundService } from "./round.service";
 import { Roles } from "../user/roles.decorator";
 import { ParsedToken } from "../user/user.service";
 import { AuthGuard } from "../user/auth.guard";
@@ -48,7 +48,9 @@ export class RoundController {
 
   @Roles({ action: "read", entity: "round" })
   @Get("/list")
-  public async getRounds(@Query() data: RoundListOptions) {
+  public async getRounds(
+    @Query() data: RoundListOptions,
+  ): Promise<RoundListResponse> {
     try {
       return await this.roundService.getRoundList(data);
     } catch (error) {

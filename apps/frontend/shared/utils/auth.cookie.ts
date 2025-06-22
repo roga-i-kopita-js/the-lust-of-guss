@@ -25,7 +25,7 @@ function decodeJwt(token: string): ParsedToken {
 
 export const parseAuthCookie = async (
   req: Request,
-): Promise<ParsedToken | null> => {
+): Promise<{ parsed: ParsedToken; token: string } | null> => {
   let auth = null;
   try {
     const token: string = await authCookie.parse(
@@ -35,7 +35,10 @@ export const parseAuthCookie = async (
     );
     const authData = decodeJwt(token);
     if (authData && authData.exp > Date.now() / 1000) {
-      auth = authData;
+      auth = {
+        parsed: authData,
+        token: `Bearer ${token}`,
+      };
     }
   } catch (_e) {
     console.warn(_e);

@@ -35,7 +35,6 @@ export class WsAuthGuard implements CanActivate {
         secret: this.configService.get<string>("APP_JWT_SECRET_KEY"),
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       client.data["tokenMeta"] = tokenMeta;
 
       const requiredRoles = this.reflector.getAllAndOverride<RoleArray>(
@@ -65,9 +64,9 @@ export class WsAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(client: Socket): string | undefined {
-    const [type, token] = (client.handshake.headers.authorization ?? "").split(
-      " ",
-    );
+    const [type, token] = (
+      (client.handshake.auth?.token as string) ?? ""
+    ).split(" ");
     return type === "Bearer" ? token : undefined;
   }
 }

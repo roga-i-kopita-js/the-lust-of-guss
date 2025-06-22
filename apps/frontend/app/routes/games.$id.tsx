@@ -1,10 +1,12 @@
-import type { Route } from "~/.react-router/types/app/routes/+types/games";
+import type { Route } from "~/.react-router/types/app/routes/+types/games.$id";
 import { parseAuthCookie } from "../../shared/utils/auth.cookie";
-import { type ClientLoaderFunction, Outlet, redirect } from "react-router";
+import { redirect } from "react-router";
 import { HttpClient } from "../core/http-client";
-import { Rounds } from "../features/rounds/Rounds";
 
-export const clientLoader = (async ({ request }: Route.ClientLoaderArgs) => {
+export const clientLoader = async ({
+  request,
+  params,
+}: Route.ClientLoaderArgs) => {
   const auth = await parseAuthCookie(request);
 
   if (!auth) {
@@ -16,20 +18,17 @@ export const clientLoader = (async ({ request }: Route.ClientLoaderArgs) => {
     auth.token,
   );
 
-  const gameList = await httpClient.getGames();
+  const game = await httpClient.getGameById(params.id);
 
   return {
-    gameList,
+    game,
   };
-}) satisfies ClientLoaderFunction;
+};
 
 export default function Games(params: Route.ComponentProps) {
   return (
     <section className={"flex items-start justify-between"}>
-      <Rounds data={params.loaderData.gameList} />
-      <div>
-        <Outlet />
-      </div>
+      <h1>{params.loaderData.game.name}</h1>
     </section>
   );
 }
