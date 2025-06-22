@@ -1,0 +1,17 @@
+{
+  "name": "client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@react-router/node": "7.6.2",
+    "@react-router/serve": "7.6.2",
+    "@react-router/fs-routes": "7.6.2",
+    "isbot": "5"
+  }
+}
