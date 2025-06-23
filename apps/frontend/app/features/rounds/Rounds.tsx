@@ -1,6 +1,6 @@
-import type { FC } from "react";
+import { type FC } from "react";
 import type { RoundListResponse } from "../../core/types";
-import { Link } from "react-router";
+import { Round } from "./Round";
 
 export type RoundsProps = {
   data: RoundListResponse;
@@ -8,15 +8,9 @@ export type RoundsProps = {
 
 export const Rounds: FC<RoundsProps> = (props) => {
   return (
-    <nav className={"p-5"}>
+    <nav className={"p-5 flex flex-col gap-2"}>
       {props.data.items.map((round) => (
-        <Link
-          key={round.id}
-          to={`/games/${round.id}`}
-          className={"p-2 underline hover:no-underline"}
-        >
-          <span>{round.name}</span>
-        </Link>
+        <Round key={round.id} round={round} />
       ))}
     </nav>
   );

@@ -1,31 +1,40 @@
 import { io, Socket } from "socket.io-client";
+import type { Round, HitInfo } from "./types";
 
 interface Events {
-  joined: { gameId: string };
-  update: {
-    totalClicks: number;
-    playerScore: number;
-    flushed: boolean;
-    leaderboard: Array<{ playerId: string; score: number }>;
-  };
-  finished: {
-    winnerId: string;
-    leaderboard: Array<{ playerId: string; score: number }>;
-  };
+  "round.hit": HitInfo;
+  "round.create": Round;
 }
 
 export class WebSocketClient {
-  protected readonly client: Socket;
+  protected client: Socket;
 
-  constructor(apiUrl: string, token: string | null) {
-    this.client = io(apiUrl, {
-      transports: ["websocket"],
-      auth: token ? { token: `Bearer ${token}` } : undefined,
+  constructor(
+    protected readonly apiUrl: string,
+    token: string | null,
+  ) {
+    this.client = this.initClient(apiUrl, token);
+    this.client.on("connect", () => console.log("✅ SOCKET.IO connected"));
+    this.client.on("connect_error", (err) =>
+      console.error("❌ connect_error:", err.message),
+    );
+  }
+  protected initClient(apiUrl: string, token: string | null): Socket {
+    return io(apiUrl, {
+      //  transports: ["websocket"],
+      auth: token ? { token: token } : undefined,
     });
   }
 
   public disconnect(): void {
     this.client.disconnect();
+  }
+
+  public reconnect(token: string | null) {
+    this.client.auth = token ? { token } : {};
+    if (!this.client.connected) {
+      this.client.connect();
+    }
   }
 
   public isConnected(): boolean {

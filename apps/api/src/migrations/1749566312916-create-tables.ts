@@ -155,7 +155,7 @@ export class CreateRoleTables1749566312916 implements MigrationInterface {
             generationStrategy: "uuid",
             isGenerated: true,
           },
-          { name: "name", type: "varchar", length: "60", isUnique: true },
+          { name: "name", type: "varchar", length: "60" },
           { name: "hp", type: "integer" },
           { name: "touchedHp", type: "integer" },
           { name: "startedAt", type: "timestamptz", isNullable: false },

@@ -29,6 +29,7 @@ type EntityName = string;
 type ActionList = Array<string>;
 export type ParsedToken = {
   id: string;
+  name: string;
   role: {
     name: string;
     permissions: Record<EntityName, ActionList>;
@@ -83,6 +84,7 @@ export class UserService {
 
     const data: ParsedToken = {
       id: user.id,
+      name: user.username,
       role: {
         name: user.role.name,
         permissions,

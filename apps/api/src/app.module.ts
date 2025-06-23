@@ -7,6 +7,7 @@ import { ormConfig } from "./config/orm.config";
 import { UserModule } from "./user/user.module";
 import { RedisModule } from "./redis/redis.module";
 import { RoundModule } from "./round/round.module";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RoundModule } from "./round/round.module";
     UserModule,
     RedisModule,
     RoundModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

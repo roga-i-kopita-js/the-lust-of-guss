@@ -1,8 +1,19 @@
 import type { Route } from "~/.react-router/types/app/routes/+types/games";
 import { parseAuthCookie } from "../../shared/utils/auth.cookie";
-import { type ClientLoaderFunction, Outlet, redirect } from "react-router";
+import {
+  type ClientLoaderFunction,
+  Outlet,
+  redirect,
+  useFetcher,
+  useRevalidator,
+} from "react-router";
 import { HttpClient } from "../core/http-client";
 import { Rounds } from "../features/rounds/Rounds";
+import { CreateRound } from "../features/create-round/CreateRound";
+import { getFutureISOString } from "../../shared/utils/get-futere-date";
+import { useEffect, useRef, useState } from "react";
+import { useWebSocket } from "../core/web-socket-context-value";
+import type { Round, RoundListResponse } from "../core/types";
 
 export const clientLoader = (async ({ request }: Route.ClientLoaderArgs) => {
   const auth = await parseAuthCookie(request);
@@ -16,20 +27,130 @@ export const clientLoader = (async ({ request }: Route.ClientLoaderArgs) => {
     auth.token,
   );
 
-  const gameList = await httpClient.getGames();
+  const gameList = await httpClient.getGames({
+    startedAt: new Date().toISOString(),
+  });
 
   return {
     gameList,
+    auth,
   };
 }) satisfies ClientLoaderFunction;
 
+export const clientAction = async (params: Route.ClientActionArgs) => {
+  const auth = await parseAuthCookie(params.request);
+
+  if (!auth) {
+    return redirect("/");
+  }
+
+  const httpClient = new HttpClient(
+    import.meta.env.VITE_BACKEND_URL,
+    auth.token,
+  );
+
+  const data = await params.request.json();
+  try {
+    return await httpClient.createGame(data);
+  } catch (e) {
+    const error = e as { message: string };
+
+    return {
+      message: error.message.includes(
+        "duplicate key value violates unique constraint",
+      )
+        ? "Game with same name already exist"
+        : error.message,
+      status: "error",
+    };
+  }
+};
+
 export default function Games(params: Route.ComponentProps) {
+  // ревалидируем раз в 30 секунд чтобы убирать отигранные раунды
+  const { revalidate } = useRevalidator();
+  const revalRef = useRef(revalidate);
+  useEffect(() => {
+    const id = setInterval(
+      () => {
+        revalRef.current();
+      },
+      Number(import.meta.env.VITE_COOLDOWN_DURATION) * 1000,
+    );
+    return () => clearInterval(id);
+  }, []);
+  // ------------------------------------------------------------
+
+  // подписываемся на обновление списка раундов по вебсокету, чтобы синхронизировать состояние с другими игроками
+  const { client } = useWebSocket();
+  const [data, setData] = useState<RoundListResponse>(
+    params.loaderData.gameList,
+  );
+  useEffect(() => {
+    setData(params.loaderData.gameList);
+  }, [params.loaderData.gameList]);
+
+  useEffect(() => {
+    const handleCreate = (d: Round) => {
+      const current = data.items.find((item) => item.id === d.id);
+      if (!current) {
+        setData((prev) => ({
+          ...prev,
+          items: [...prev.items, d],
+        }));
+      }
+    };
+
+    client.on("round.create", handleCreate);
+    return () => {
+      client.off("round.create", handleCreate);
+    };
+  }, [client]);
+  // ------------------------------------------------------------
+
+  const fetcher = useFetcher();
+
   return (
-    <section className={"flex items-start justify-between"}>
-      <Rounds data={params.loaderData.gameList} />
-      <div>
-        <Outlet />
+    <>
+      <div className={"border-1 p-8 flex justify-between items-center"}>
+        <span>player: {params.loaderData.auth.parsed.name}</span>
+        {params.loaderData.auth.parsed.role.name === "admin" && (
+          <CreateRound
+            error={
+              fetcher.data?.status === "error"
+                ? fetcher.data.message
+                : undefined
+            }
+            onCreate={async ({ name }) => {
+              await fetcher.submit(
+                {
+                  name,
+                  startedAt: getFutureISOString(
+                    Number(import.meta.env.VITE_COOLDOWN_DURATION),
+                  ),
+                  endedAt: getFutureISOString(
+                    Number(import.meta.env.VITE_COOLDOWN_DURATION) +
+                      Number(import.meta.env.VITE_ROUND_DURATION),
+                  ),
+                },
+                {
+                  method: "POST",
+                  encType: "application/json",
+                },
+              );
+            }}
+          />
+        )}
       </div>
-    </section>
+
+      <section className={"flex items-start justify-between flex-1"}>
+        <div className="flex items-center justify-center flex-col">
+          <Rounds data={data} />
+        </div>
+        <div>
+          <Outlet />
+        </div>
+      </section>
+    </>
   );
 }

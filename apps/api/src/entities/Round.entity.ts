@@ -14,7 +14,7 @@ export class Round {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ length: 60, unique: true })
+  @Column({ length: 60 })
   name: string;
 
   @Column({ type: "integer", nullable: false })

@@ -29,8 +29,8 @@ export type Round = {
   name: string;
   hp: number;
   touchedHp: number;
-  startedAt: Date;
-  endedAt: Date;
+  startedAt: string;
+  endedAt: string;
   participants: PlayerRound[];
   winner: User;
 };
@@ -40,6 +40,13 @@ export type PlayerRound = {
   player: User;
   round: Round;
   clicksCount: number;
+};
+
+export type HitInfo = {
+  totalClicks: number;
+  playerScore: number;
+  flushed: boolean;
+  leaderboard: Array<{ playerId: string; score: number }>;
 };
 
 export type RoundListResponse = {

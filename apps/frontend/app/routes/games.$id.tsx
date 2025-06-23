@@ -28,7 +28,7 @@ export const clientLoader = async ({
 export default function Games(params: Route.ComponentProps) {
   return (
     <section className={"flex items-start justify-between"}>
-      <h1>{params.loaderData.game.name}</h1>
+      <h1>{params.loaderData.game.name}</h1> ss
     </section>
   );
 }

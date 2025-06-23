@@ -4,6 +4,7 @@ type EntityName = string;
 type ActionList = Array<string>;
 export type ParsedToken = {
   id: string;
+  name: string;
   exp: number;
   role: {
     name: string;

@@ -41,6 +41,8 @@
     "react-router": "7.6.2",
     "react-aria-components": "1.10.1",
     "crypto-js": "4.2.0",
+    "ufo": "1.6.1",
+    "@nestjs/event-emitter": "3.0.1",
     "yup": "1.6.1"
   },
   "devDependencies": {

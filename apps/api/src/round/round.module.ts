@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { RoundController } from "./round.controller";
 import { RoundService } from "./round.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -10,7 +10,10 @@ import { RedisListenerService } from "./redis-listener.service";
 import { RoundGateway } from "./round.gateway";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Round, User, Role]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([Round, User, Role]),
+    forwardRef(() => UserModule),
+  ],
   controllers: [RoundController],
   providers: [RoundService, RedisListenerService, RoundGateway],
   exports: [RoundGateway],

@@ -14,6 +14,7 @@ import { REDIS_CLIENT } from "../redis/redis.constants";
 import Redis from "ioredis";
 import { ParsedToken } from "../user/user.service";
 import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 export type HitInfo = {
   totalClicks: number;
@@ -40,6 +41,7 @@ export class RoundService {
     protected roundRepository: Repository<Round>,
     @Inject(REDIS_CLIENT)
     private readonly redis: Redis,
+    private events: EventEmitter2,
   ) {}
 
   private readonly logger = new Logger(RoundService.name);
@@ -69,6 +71,7 @@ export class RoundService {
 
     await this.initializeGameInRedis(game, meta);
     this.logger.log(`round with id: ${game.id} was created successfully.`);
+    this.events.emit("round.create", game);
     return game;
   }
 
@@ -362,6 +365,7 @@ export class RoundService {
     this.logger.log(
       `game (id: ${gameId}) was hit successfully by player: ${meta.id}`,
     );
+    this.events.emit("round.hit", result);
     return result;
   }
 
