@@ -33,11 +33,13 @@ export class RoundGateway {
   }
 
   @OnEvent("round.hit")
+  @Roles({ action: "read", entity: "round" })
   onRoundHit(payload: HitInfo) {
     this.server.emit("round.hit", payload);
   }
 
   @OnEvent("round.create")
+  @Roles({ action: "read", entity: "round" })
   onRoundCreate(payload: Round) {
     this.server.emit("round.create", payload);
   }

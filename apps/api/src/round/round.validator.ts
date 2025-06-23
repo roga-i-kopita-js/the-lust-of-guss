@@ -1,12 +1,32 @@
 import {
+  IsDate,
   IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from "class-validator";
 import { Round } from "../entities/Round.entity";
+import { Type } from "class-transformer";
+
+@ValidatorConstraint({ name: "isAfterStart", async: false })
+class IsAfterStartConstraint implements ValidatorConstraintInterface {
+  validate(endedAt: Date, args: ValidationArguments) {
+    const obj = args.object as CreateRound;
+    return (
+      obj.startedAt instanceof Date &&
+      endedAt.getTime() > obj.startedAt.getTime()
+    );
+  }
+  defaultMessage() {
+    return "endedAt должен быть позже startedAt";
+  }
+}
 
 export class CreateRound {
   constructor(data: Partial<Omit<Round, "id">>) {
@@ -18,10 +38,13 @@ export class CreateRound {
   @MaxLength(60)
   name: string;
 
-  @IsISO8601()
+  @Type(() => Date)
+  @IsDate({ message: "startedAt должен быть датой" })
   startedAt: Date;
 
-  @IsISO8601()
+  @Type(() => Date)
+  @IsDate({ message: "endedAt должен быть датой" })
+  @Validate(IsAfterStartConstraint)
   endedAt: Date;
 }
 

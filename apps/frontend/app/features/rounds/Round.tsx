@@ -1,23 +1,13 @@
-import { type FC, useEffect, useState } from "react";
+import { type FC } from "react";
 import type { Round as TRound } from "../../core/types";
 import { Link } from "react-router";
+import { useRoundTimer } from "../../../shared/hooks/use-round-timer";
 
 export const Round: FC<{
   round: TRound;
 }> = ({ round }) => {
-  const msUntilStart = new Date(round.startedAt).getTime() - Date.now();
-  const secondsUntilStart = Math.max(0, Math.floor(msUntilStart / 1000));
-  const [seconds, setSeconds] = useState(secondsUntilStart);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((prev) => prev - 1);
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
+  const seconds = useRoundTimer(round.startedAt);
+  const endSeconds = useRoundTimer(round.endedAt);
   return (
     <Link
       key={round.id}
@@ -49,9 +39,14 @@ export const Round: FC<{
           })}
         </p>
       </div>
-      {seconds > 0 ? (
+
+      {seconds > 0 && endSeconds > 0 && (
+        <p className={"text-orange-400"}>Status: Pending</p>
+      )}
+      {seconds <= 0 && endSeconds > 0 && (
         <p className={"text-green-400"}>Status: Active</p>
-      ) : (
+      )}
+      {seconds <= 0 && endSeconds <= 0 && (
         <p className={"text-red-400"}>Раунд завершен</p>
       )}
     </Link>

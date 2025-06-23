@@ -1,12 +1,12 @@
 ### Create round
 POST http://localhost:3000/round/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhiMmNjN2YxLTAxZjktNDk1Zi04M2IwLTk2ZDg3MzZiMzlkYSIsInJvbGUiOnsibmFtZSI6ImFkbWluIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsiY3JlYXRlIiwicmVhZCIsImRlbGV0ZSJdfX0sImlhdCI6MTc1MDUwMzUwOCwiZXhwIjoxNzUwNTg5OTA4fQ.toZyCDa158p0bW2IFflg1ujhxIXVL4nx6qMsK5oVD7o
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwZWM1NDdiLTMzYzAtNDkwZi04ZDY1LTYwYjM2OTViOGY4MiIsIm5hbWUiOiJhZG1pbiIsInJvbGUiOnsibmFtZSI6ImFkbWluIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsiZGVsZXRlIiwicmVhZCIsImNyZWF0ZSJdfX0sImlhdCI6MTc1MDcxNTI1MSwiZXhwIjoxNzUwODAxNjUxfQ.83a6nzBzNwsyYi4Ehi-HFxjZC2u9JAb_SugBm1_TQfc
 
 {
   "name": "test round 1",
-  "startedAt": "2025-06-21T22:30:45.134Z",
-  "endedAt": "2025-06-21T23:47:00.134Z"
+  "startedAt": "2025-05-22T22:30:45.134Z",
+  "endedAt": "2025-06-29T23:47:00.134Z"
 }
 
 ### Touch Admin
@@ -15,7 +15,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhiMmNjN2YxLTAxZjktNDk1Zi04M2IwLTk2ZDg3MzZiMzlkYSIsInJvbGUiOnsibmFtZSI6ImFkbWluIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsiY3JlYXRlIiwicmVhZCIsImRlbGV0ZSJdfX0sImlhdCI6MTc1MDUwMzUwOCwiZXhwIjoxNzUwNTg5OTA4fQ.toZyCDa158p0bW2IFflg1ujhxIXVL4nx6qMsK5oVD7o
 
 {
-  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
+  "id": "88bb8d40-3a6d-4057-a7f1-fefa09916800"
 }
 
 ### Hit Nikita
@@ -24,25 +24,25 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxNmQyNzgxLWMwN2EtNDk1MC04ODhhLWI2ZmI5MjhmMWNjZSIsInJvbGUiOnsibmFtZSI6Im5pa2l0YSIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDM0ODYsImV4cCI6MTc1MDU4OTg4Nn0.1c2hCCbaXRjnmECRP5wJwYDyBvaHqHlzwMlv07txQWU
 
 {
-  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
+  "id": "88bb8d40-3a6d-4057-a7f1-fefa09916800"
 }
 
 ### Hit Player 1
 POST http://localhost:3000/round/play
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwYzljNzVmLWQxOTctNDdhNS04NjgxLTYxZDBkYmQyMWY0ZiIsInJvbGUiOnsibmFtZSI6InBsYXllciIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDMzOTQsImV4cCI6MTc1MDU4OTc5NH0.Q37vf34bjxb6dvzQais_BM3BeScifwr7n7XguT2djLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1MjM4OTc2LTZjYmItNGE4Mi05YTI0LTg5MjgzYzJhMjY5YyIsIm5hbWUiOiJ0ZXN0X3VzZXIiLCJyb2xlIjp7Im5hbWUiOiJwbGF5ZXIiLCJwZXJtaXNzaW9ucyI6eyJyb3VuZCI6WyJyZWFkIiwidXBkYXRlIl19fSwiaWF0IjoxNzUwNzE1MzE3LCJleHAiOjE3NTA4MDE3MTd9.FM1klm2HABVIrLUNT9i4WlCsnxqIa2ihKI1sMrCwD3g
 
 {
-  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
+  "id": "88bb8d40-3a6d-4057-a7f1-fefa09916800"
 }
 
 ### Hit Player 2
 POST http://localhost:3000/round/play
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZjMDA4YzdmLTAwYWEtNGRmMS04NTVmLTE3NTUxOTI4ZTA2ZSIsInJvbGUiOnsibmFtZSI6InBsYXllciIsInBlcm1pc3Npb25zIjp7InJvdW5kIjpbInJlYWQiLCJ1cGRhdGUiXX19LCJpYXQiOjE3NTA1MDM0NTcsImV4cCI6MTc1MDU4OTg1N30.nbMiUhEJWEssJeWq9nJxAskoSNtU8WwvdV_piimcZ5M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY5NGFmMTZkLTgyZmItNDI0MC1hYmU3LTdjYTllNDEwYTQwOCIsIm5hbWUiOiJ0ZXN0X3VzZXIxIiwicm9sZSI6eyJuYW1lIjoicGxheWVyIiwicGVybWlzc2lvbnMiOnsicm91bmQiOlsicmVhZCIsInVwZGF0ZSJdfX0sImlhdCI6MTc1MDcxNTM0MCwiZXhwIjoxNzUwODAxNzQwfQ.ZccmxUy7Qu_4vYtWna1BR0DkTgu3v-0hu_zDoYtALYg
 
 {
-  "id": "cdcfb842-b5b8-4d8e-b9f4-db3cf0bf7a21"
+  "id": "88bb8d40-3a6d-4057-a7f1-fefa09916800"
 }
 
 ### Get rounds

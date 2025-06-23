@@ -49,7 +49,6 @@ export class WsAuthGuard implements CanActivate {
           if (!tokenMeta.role.permissions[item.entity]) {
             throw new Error("forbidden");
           }
-
           // или если отсутствуют пермишины, то тоже реджектим
           if (!tokenMeta.role.permissions[item.entity].includes(item.action)) {
             throw new Error("forbidden");
@@ -59,7 +58,6 @@ export class WsAuthGuard implements CanActivate {
     } catch {
       throw new UnauthorizedException();
     }
-
     return true;
   }
 

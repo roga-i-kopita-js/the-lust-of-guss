@@ -5,13 +5,12 @@ import {
   Outlet,
   redirect,
   useFetcher,
-  useRevalidator,
 } from "react-router";
 import { HttpClient } from "../core/http-client";
 import { Rounds } from "../features/rounds/Rounds";
 import { CreateRound } from "../features/create-round/CreateRound";
 import { getFutureISOString } from "../../shared/utils/get-futere-date";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWebSocket } from "../core/web-socket-context-value";
 import type { Round, RoundListResponse } from "../core/types";
 
@@ -28,7 +27,11 @@ export const clientLoader = (async ({ request }: Route.ClientLoaderArgs) => {
   );
 
   const gameList = await httpClient.getGames({
-    startedAt: new Date().toISOString(),
+    startedAt: new Date(
+      Date.now() -
+        (Number(import.meta.env.VITE_COOLDOWN_DURATION) +
+          Number(import.meta.env.VITE_ROUND_DURATION) * 1000),
+    ).toISOString(),
   });
 
   return {
@@ -67,20 +70,6 @@ export const clientAction = async (params: Route.ClientActionArgs) => {
 };
 
 export default function Games(params: Route.ComponentProps) {
-  // ревалидируем раз в 30 секунд чтобы убирать отигранные раунды
-  const { revalidate } = useRevalidator();
-  const revalRef = useRef(revalidate);
-  useEffect(() => {
-    const id = setInterval(
-      () => {
-        revalRef.current();
-      },
-      Number(import.meta.env.VITE_COOLDOWN_DURATION) * 1000,
-    );
-    return () => clearInterval(id);
-  }, []);
-  // ------------------------------------------------------------
-
   // подписываемся на обновление списка раундов по вебсокету, чтобы синхронизировать состояние с другими игроками
   const { client } = useWebSocket();
   const [data, setData] = useState<RoundListResponse>(
@@ -145,9 +134,7 @@ export default function Games(params: Route.ComponentProps) {
 
       <section className={"flex items-start justify-between flex-1"}>
         <Rounds data={data} />
-        <div>
-          <Outlet />
-        </div>
+        <Outlet />
       </section>
     </>
   );

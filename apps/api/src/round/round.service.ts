@@ -21,6 +21,7 @@ export type HitInfo = {
   playerScore: number;
   flushed: boolean;
   leaderboard: Array<{ playerId: string; score: number }>;
+  winner: User | null;
 };
 
 export type RoundListResponse = {
@@ -150,21 +151,28 @@ export class RoundService {
 
   public getFinishedRound(game: Round): HitInfo {
     const score = game.participants.find((p) => p.player.id === game.winner.id);
-    if (!score) {
-      this.logger.error(
-        `cannot find winner (id: ${game.winner.id}) of round ${game.winner.id},`,
-      );
-
-      throw new Error("game.winner not found");
-    }
+    let maxScore = 0;
+    let winner: HitInfo["winner"] = null;
+    const leaderBoard: HitInfo["leaderboard"] = [];
+    game.participants.forEach((pr) => {
+      if (pr.clicksCount > maxScore) {
+        maxScore = pr.clicksCount;
+        winner = pr.player;
+      }
+      leaderBoard.push({
+        playerId: pr.player.id,
+        score: pr.clicksCount,
+      });
+    });
     return {
       totalClicks: game.hp,
-      playerScore: score.clicksCount,
+      playerScore: score?.clicksCount ?? 0,
       flushed: true,
       leaderboard: game.participants.map((pr) => ({
         playerId: pr.player.id,
         score: pr.clicksCount,
       })),
+      winner,
     };
   }
 
@@ -274,10 +282,14 @@ export class RoundService {
       playerScore: Number(raw[1]),
       flushed,
       leaderboard,
+      winner: null,
     };
   }
 
-  public async flushGame(roundData: Round, meta?: ParsedToken): Promise<void> {
+  public async flushGame(
+    roundData: Round,
+    meta?: ParsedToken,
+  ): Promise<User | null> {
     const gameId = roundData.id;
     const { boardKey, clicksKey, maxHpKey, flushedKey } = this.getGamesKey(
       roundData,
@@ -287,9 +299,10 @@ export class RoundService {
     const stats: { playerId: string; clicks: number }[] = [];
 
     // вычисляем победителя
-    let winnerId: string | null = null;
+    let winnerId: null | string = null;
     let prevClicksCount: number = -1;
     let touchedHp: number = 0;
+    let winner: User | null = null;
 
     for (let i = 0; i < entries.length; i += 2) {
       const clicks = parseInt(entries[i + 1], 10);
@@ -324,7 +337,7 @@ export class RoundService {
         );
 
         // ищем запись с победителем
-        const winner = await manager
+        winner = await manager
           .getRepository(User)
           .findOneOrFail({ where: { id: winnerId } });
 
@@ -343,6 +356,7 @@ export class RoundService {
       .exec();
 
     this.logger.log(`game (id: ${gameId}) was flushed`);
+    return winner;
   }
 
   public async hit(gameId: string, meta: ParsedToken): Promise<HitInfo> {
@@ -356,17 +370,17 @@ export class RoundService {
     }
 
     const result = await this.playRound(game, meta);
-
+    let winner: User | null = null;
     // если игра завершена, необходимо почистить редис + обновить БД
     if (result.flushed) {
-      await this.flushGame(game, meta);
+      winner = await this.flushGame(game, meta);
     }
 
     this.logger.log(
       `game (id: ${gameId}) was hit successfully by player: ${meta.id}`,
     );
     this.events.emit("round.hit", result);
-    return result;
+    return { ...result, winner };
   }
 
   public async getRoundList(

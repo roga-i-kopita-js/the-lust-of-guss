@@ -47,9 +47,14 @@ export type HitInfo = {
   playerScore: number;
   flushed: boolean;
   leaderboard: Array<{ playerId: string; score: number }>;
+  winner: User | null;
 };
 
 export type RoundListResponse = {
   items: Array<Round>;
   total: number;
+};
+
+export type PlayRound = {
+  id: string;
 };
