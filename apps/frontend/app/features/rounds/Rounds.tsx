@@ -8,7 +8,7 @@ export type RoundsProps = {
 
 export const Rounds: FC<RoundsProps> = (props) => {
   return (
-    <nav className={"p-5 flex flex-col gap-2"}>
+    <nav className={"flex flex-col gap-8"}>
       {props.data.items.map((round) => (
         <Round key={round.id} round={round} />
       ))}

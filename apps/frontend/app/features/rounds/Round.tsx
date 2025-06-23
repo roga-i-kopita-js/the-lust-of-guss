@@ -6,10 +6,7 @@ export const Round: FC<{
   round: TRound;
 }> = ({ round }) => {
   const msUntilStart = new Date(round.startedAt).getTime() - Date.now();
-
-  // секунды до старта, округлённые вниз
   const secondsUntilStart = Math.max(0, Math.floor(msUntilStart / 1000));
-  console.log(secondsUntilStart);
   const [seconds, setSeconds] = useState(secondsUntilStart);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,13 +22,37 @@ export const Round: FC<{
     <Link
       key={round.id}
       to={`/games/${round.id}`}
-      className={"p-2 hover:bg-sky-600 hover:border-sky-600 border-2"}
+      className={
+        "p-2 hover:bg-sky-600 hover:border-sky-600 border-2 flex flex-col gap-2"
+      }
     >
-      <p>{round.name}</p>
+      <p>Id: {round.id}</p>
+      <div>
+        <p>
+          Start date:{" "}
+          {new Date(round.startedAt).toLocaleString("en-EN", {
+            day: "2-digit",
+            month: "long",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </p>
+        <p>
+          End date:{" "}
+          {new Date(round.endedAt).toLocaleString("en-EN", {
+            day: "2-digit",
+            month: "long",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </p>
+      </div>
       {seconds > 0 ? (
-        <p>До начала раунда осталось {seconds} секунд</p>
+        <p className={"text-green-400"}>Status: Active</p>
       ) : (
-        <p>Раунд завершен</p>
+        <p className={"text-red-400"}>Раунд завершен</p>
       )}
     </Link>
   );

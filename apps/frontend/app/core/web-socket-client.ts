@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import type { Round, HitInfo } from "./types";
 
-interface Events {
+export interface Events {
   "round.hit": HitInfo;
   "round.create": Round;
 }
@@ -21,7 +21,6 @@ export class WebSocketClient {
   }
   protected initClient(apiUrl: string, token: string | null): Socket {
     return io(apiUrl, {
-      //  transports: ["websocket"],
       auth: token ? { token: token } : undefined,
     });
   }

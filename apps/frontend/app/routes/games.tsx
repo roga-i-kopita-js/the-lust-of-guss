@@ -112,7 +112,7 @@ export default function Games(params: Route.ComponentProps) {
 
   return (
     <>
-      <div className={"border-1 p-8 flex justify-between items-center"}>
+      <div className={"border-1 flex justify-between items-center mb-8 p-8"}>
         <span>player: {params.loaderData.auth.parsed.name}</span>
         {params.loaderData.auth.parsed.role.name === "admin" && (
           <CreateRound
@@ -144,9 +144,7 @@ export default function Games(params: Route.ComponentProps) {
       </div>
 
       <section className={"flex items-start justify-between flex-1"}>
-        <div className="flex items-center justify-center flex-col">
-          <Rounds data={data} />
-        </div>
+        <Rounds data={data} />
         <div>
           <Outlet />
         </div>
