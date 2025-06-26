@@ -1,14 +1,8 @@
-import {
-  Injectable,
-  OnModuleInit,
-  Logger,
-  Inject,
-  forwardRef,
-} from "@nestjs/common";
+import { Injectable, OnModuleInit, Logger, Inject } from "@nestjs/common";
 import { Redis } from "ioredis";
 import { REDIS_SUBSCRIBER } from "../redis/redis.constants";
 import { RoundService } from "./round.service";
-import { RoundGateway } from "./round.gateway";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class RedisListenerService implements OnModuleInit {
@@ -17,8 +11,7 @@ export class RedisListenerService implements OnModuleInit {
   constructor(
     @Inject(REDIS_SUBSCRIBER) private readonly sub: Redis,
     private readonly roundService: RoundService,
-    @Inject(forwardRef(() => RoundGateway))
-    private readonly gateway: RoundGateway,
+    private events: EventEmitter2,
   ) {}
 
   protected async subscribe(key: string): Promise<void> {
@@ -28,11 +21,25 @@ export class RedisListenerService implements OnModuleInit {
 
       try {
         const game = await this.roundService.getGameById(gameId);
-        await this.roundService.flushGame(game);
+        const info = await this.roundService.flushGame(game);
 
-        this.gateway.server
-          .to(gameId)
-          .emit("finished", this.roundService.getFinishedRound(game));
+        this.events.emit("round", info);
+      } catch (err) {
+        this.logger.error(err);
+      }
+    }
+
+    if (key.startsWith("game-start:") && key.endsWith(":ttl")) {
+      const gameId = key.split(":")[1];
+      this.logger.log(`Game with ${gameId}, auto-starting`);
+
+      try {
+        const game = await this.roundService.getGameById(gameId);
+
+        this.events.emit("round", {
+          ...this.roundService.getEmptyRound(game),
+          status: "active",
+        });
       } catch (err) {
         this.logger.error(err);
       }

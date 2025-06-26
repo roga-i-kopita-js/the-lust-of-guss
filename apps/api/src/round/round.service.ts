@@ -17,11 +17,13 @@ import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 export type HitInfo = {
-  totalClicks: number;
-  playerScore: number;
+  id: string;
+  hp: number;
+  score: number;
   flushed: boolean;
   leaderboard: Array<{ playerId: string; score: number }>;
   winner: User | null;
+  status: "pending" | "active" | "finished";
 };
 
 export type RoundListResponse = {
@@ -56,6 +58,61 @@ export class RoundService {
     });
   }
 
+  public async getHitInfo(gameId: string, meta: ParsedToken): Promise<HitInfo> {
+    const game = await this.getGameById(gameId);
+
+    const now = Date.now();
+    const start = new Date(game.startedAt).getTime();
+    const end = new Date(game.endedAt).getTime();
+
+    // 2) Если игра ещё не началась
+    if (now < start) {
+      const result = this.getEmptyRound(game);
+      return { ...result, status: "pending" };
+    }
+
+    if (now > end || game.winner) {
+      return this.getFinishedRound(game);
+    }
+
+    const { clicksKey, boardKey, flushedKey, redisPlayer } = this.getGamesKey(
+      game,
+      meta,
+    );
+
+    const [hpRaw, userScoreRaw, rawEntries, flushedFlag] = await Promise.all([
+      this.redis.get(clicksKey),
+      this.redis.zscore(boardKey, redisPlayer),
+      this.redis.zrevrange(boardKey, 0, -1, "WITHSCORES"),
+      this.redis.exists(flushedKey),
+    ]);
+
+    const hp = Number(hpRaw) || 0;
+    const score = Number(userScoreRaw) || 0;
+    const flushed = flushedFlag === 1;
+
+    if (flushed) {
+      return this.getFinishedRound(game);
+    }
+
+    const leaderboard: HitInfo["leaderboard"] = [];
+    for (let i = 0; i < rawEntries.length; i += 2) {
+      const p = String(rawEntries[i]).replace(/^player:/, "");
+      const s = Number(rawEntries[i + 1]);
+      leaderboard.push({ playerId: p, score: s });
+    }
+
+    return {
+      id: game.id,
+      hp,
+      score,
+      flushed,
+      leaderboard,
+      winner: null,
+      status: "active",
+    };
+  }
+
   public async createRound(
     roundData: CreateRound,
     meta: ParsedToken,
@@ -71,6 +128,7 @@ export class RoundService {
     const game = await this.getGameById(initialRound.id);
 
     await this.initializeGameInRedis(game, meta);
+
     this.logger.log(`round with id: ${game.id} was created successfully.`);
     this.events.emit("round.create", game);
     return game;
@@ -137,42 +195,38 @@ export class RoundService {
     return result
 `;
 
-  protected validateDate(game: Round): void {
-    const now = Date.now();
-    const start = new Date(game.startedAt).getTime();
-    const end = new Date(game.endedAt).getTime();
-    if (now < start) {
-      throw new Error("game is not started");
-    }
-    if (now > end) {
-      throw new Error("Game is finished");
-    }
-  }
-
   public getFinishedRound(game: Round): HitInfo {
     const score = game.participants.find((p) => p.player.id === game.winner.id);
-    let maxScore = 0;
-    let winner: HitInfo["winner"] = null;
     const leaderBoard: HitInfo["leaderboard"] = [];
     game.participants.forEach((pr) => {
-      if (pr.clicksCount > maxScore) {
-        maxScore = pr.clicksCount;
-        winner = pr.player;
-      }
       leaderBoard.push({
         playerId: pr.player.id,
         score: pr.clicksCount,
       });
     });
     return {
-      totalClicks: game.hp,
-      playerScore: score?.clicksCount ?? 0,
+      id: game.id,
+      hp: game.hp,
+      score: score?.clicksCount ?? 0,
       flushed: true,
       leaderboard: game.participants.map((pr) => ({
         playerId: pr.player.id,
         score: pr.clicksCount,
       })),
-      winner,
+      winner: game.winner,
+      status: "finished",
+    };
+  }
+
+  public getEmptyRound(game: Round): HitInfo {
+    return {
+      id: game.id,
+      hp: game.hp,
+      score: 0,
+      flushed: false,
+      leaderboard: [],
+      winner: null,
+      status: "pending",
     };
   }
 
@@ -180,23 +234,27 @@ export class RoundService {
     game: Round,
     meta: ParsedToken,
   ): Promise<void> {
-    const { clicksKey, boardKey, maxHpKey, ttlKey } = this.getGamesKey(
-      game,
-      meta,
-    );
+    const { clicksKey, boardKey, maxHpKey, ttlKey, ttlStartKey } =
+      this.getGamesKey(game, meta);
     if (!(await this.redis.exists(maxHpKey))) {
       const ttl = Math.max(
         0,
         Math.floor((game.endedAt.getTime() - Date.now()) / 1000),
       );
 
+      const startTtl = Math.max(
+        0,
+        Math.floor((game.startedAt.getTime() - Date.now()) / 1000),
+      );
+
       await this.redis
         .multi()
         .set(ttlKey, "1", "EX", ttl)
+        .set(ttlStartKey, "0", "EX", startTtl)
         .set(maxHpKey, game.hp.toString())
         .del(clicksKey, boardKey)
         .exec();
-
+      const justSet = await this.redis.get(maxHpKey);
       this.logger.log(`game (id: ${game.id}) was initialized in redis`);
     }
   }
@@ -211,6 +269,7 @@ export class RoundService {
     redisPlayer: string;
     tapsHashKey: string;
     ttlKey: string;
+    ttlStartKey: string;
     maxHpKey: string;
   } {
     const { id: gameId } = game;
@@ -222,6 +281,7 @@ export class RoundService {
     const redisPlayer = `player:${meta?.id}`;
     const tapsHashKey = `game:${gameId}:taps`;
     const ttlKey = `game:${game.id}:ttl`;
+    const ttlStartKey = `game-start:${game.id}:ttl`;
 
     return {
       clicksKey,
@@ -231,6 +291,7 @@ export class RoundService {
       tapsHashKey,
       maxHpKey,
       ttlKey,
+      ttlStartKey,
     };
   }
 
@@ -243,6 +304,13 @@ export class RoundService {
       tapsHashKey,
       maxHpKey,
     } = this.getGamesKey(game, meta);
+
+    if (!(await this.redis.exists(maxHpKey))) {
+      this.logger.debug(
+        `maxHpKey not found, initializing game ${game.id} in Redis`,
+      );
+      await this.initializeGameInRedis(game, meta);
+    }
 
     // Атомарно обновляем состояние записи в редис, чтобы избежать гонки
     const raw = (await this.redis.eval(
@@ -259,13 +327,12 @@ export class RoundService {
 
     const total = Number(raw[0]);
 
-    // если тотал < 0, значит игра уже завершена
-    if (total < 0) {
-      throw new Error("Раунд уже завершён");
-    }
-
     // если вернулся флаг flushed, значит игра завершена, и мы должны обновить БД
     const flushed = Number(raw[2]) === 1;
+
+    if (flushed) {
+      return await this.flushGame(game, meta);
+    }
 
     // Дальше идут numEntries пар [playerId, score]
     const pairsCount = Number(raw[3]);
@@ -278,25 +345,27 @@ export class RoundService {
     }
 
     return {
-      totalClicks: total,
-      playerScore: Number(raw[1]),
+      id: game.id,
+      hp: total,
+      score: Number(raw[1]),
       flushed,
       leaderboard,
       winner: null,
+      status: flushed ? "finished" : "active",
     };
   }
 
   public async flushGame(
     roundData: Round,
     meta?: ParsedToken,
-  ): Promise<User | null> {
+  ): Promise<HitInfo> {
     const gameId = roundData.id;
     const { boardKey, clicksKey, maxHpKey, flushedKey } = this.getGamesKey(
       roundData,
       meta,
     );
     const entries = await this.redis.zrevrange(boardKey, 0, -1, "WITHSCORES");
-    const stats: { playerId: string; clicks: number }[] = [];
+    const leaderBoard: HitInfo["leaderboard"] = [];
 
     // вычисляем победителя
     let winnerId: null | string = null;
@@ -312,9 +381,9 @@ export class RoundService {
         winnerId = player;
       }
       touchedHp += clicks;
-      stats.push({
+      leaderBoard.push({
         playerId: player,
-        clicks,
+        score: clicks,
       });
     }
 
@@ -323,13 +392,13 @@ export class RoundService {
       await this.dataSource.manager.transaction(async (manager) => {
         // обновляем связанные записи в таблице
         await Promise.all(
-          stats.map(({ playerId, clicks }) => {
+          leaderBoard.map(({ playerId, score }) => {
             const repository = manager.getRepository(PlayerRound);
 
             const playerRound = repository.create({
               player: { id: playerId },
               round: { id: roundData.id },
-              clicksCount: clicks,
+              clicksCount: score,
             });
 
             return repository.save(playerRound);
@@ -355,32 +424,52 @@ export class RoundService {
       .expire(flushedKey, 60 * 60)
       .exec();
 
+    const result: HitInfo = {
+      id: roundData.id,
+      hp: roundData.hp,
+      flushed: true,
+      score: touchedHp,
+      leaderboard: leaderBoard,
+      winner,
+      status: "finished",
+    };
     this.logger.log(`game (id: ${gameId}) was flushed`);
-    return winner;
+    this.events.emit("round.flushed", result);
+    return result;
   }
 
   public async hit(gameId: string, meta: ParsedToken): Promise<HitInfo> {
     const game = await this.getGameById(gameId);
-    // проверяем можно ли вообще поиграть в эту игру в текущее время
-    this.validateDate(game);
 
-    // проверяем есть ли уже победитель, в таком случае сразу отдаем итоговый счет
-    if (typeof game.winner?.id !== "undefined") {
-      return this.getFinishedRound(game);
+    const now = Date.now();
+    const start = new Date(game.startedAt).getTime();
+
+    // если игра не началась возвращаем дефолтный hitInfo
+    if (now < start) {
+      const result = this.getEmptyRound(game);
+      return {
+        ...result,
+        status: "pending",
+      };
+    }
+
+    const end = new Date(game.endedAt).getTime();
+
+    // если игра уже завершена возврашаем HitInfo
+    if (now > end || typeof game.winner?.id !== "undefined") {
+      const result = this.getFinishedRound(game);
+      this.events.emit("round", result);
+      return result;
     }
 
     const result = await this.playRound(game, meta);
-    let winner: User | null = null;
-    // если игра завершена, необходимо почистить редис + обновить БД
-    if (result.flushed) {
-      winner = await this.flushGame(game, meta);
-    }
 
     this.logger.log(
       `game (id: ${gameId}) was hit successfully by player: ${meta.id}`,
     );
-    this.events.emit("round.hit", result);
-    return { ...result, winner };
+    this.events.emit("round", result);
+
+    return result;
   }
 
   public async getRoundList(

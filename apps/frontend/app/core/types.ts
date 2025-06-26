@@ -43,11 +43,12 @@ export type PlayerRound = {
 };
 
 export type HitInfo = {
-  totalClicks: number;
-  playerScore: number;
+  hp: number;
+  score: number;
   flushed: boolean;
   leaderboard: Array<{ playerId: string; score: number }>;
   winner: User | null;
+  status: "pending" | "active" | "finished";
 };
 
 export type RoundListResponse = {

@@ -1,10 +1,10 @@
 import { io, Socket } from "socket.io-client";
-import type { Round, HitInfo, PlayRound } from "./types";
+import type { HitInfo, PlayRound, Round } from "./types";
 
 export interface Events {
-  "round.hit": HitInfo;
-  "round.create": Round;
+  round: HitInfo;
   play: PlayRound;
+  "round.create": Round;
 }
 
 export class WebSocketClient {

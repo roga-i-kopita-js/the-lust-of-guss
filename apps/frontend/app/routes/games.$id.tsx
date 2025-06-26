@@ -22,10 +22,15 @@ export const clientLoader = async ({
     auth.token,
   );
 
-  const game = await httpClient.getGameById(params.id);
+  const [game, hiInfo] = await Promise.all([
+    httpClient.getGameById(params.id),
+    httpClient.geHitInfoById(params.id),
+  ]);
 
   return {
     game,
+    playerId: auth.parsed.id,
+    hiInfo,
   };
 };
 
@@ -36,23 +41,34 @@ export default function Games(params: Route.ComponentProps) {
   };
 
   // подписываемся на обновление списка раундов по вебсокету, чтобы синхронизировать состояние с другими игроками
-  const [info, setInfo] = useState<HitInfo | undefined>();
+  const [info, setInfo] = useState<HitInfo>(params.loaderData.hiInfo);
 
   useEffect(() => {
-    const handleHit = (data: HitInfo) => {
+    setInfo(params.loaderData.hiInfo);
+  }, [params.loaderData.hiInfo]);
+
+  useEffect(() => {
+    const handleHit = (data: HitInfo): void => {
       setInfo(data);
     };
 
-    client.on("round.hit", handleHit);
+    client.on("round", handleHit);
+
     return () => {
-      client.off("round.hit", handleHit);
+      client.off("round", handleHit);
     };
   }, [client]);
   // ------------------------------------------------------------
 
   return (
     <section className={"flex flex-1 items-center justify-center"}>
-      <Game game={params.loaderData.game} touch={touchGuss} hitInfo={info} />
+      <Game
+        key={params.loaderData.game.id}
+        game={params.loaderData.game}
+        touch={touchGuss}
+        hitInfo={info}
+        playerID={params.loaderData.playerId}
+      />
     </section>
   );
 }

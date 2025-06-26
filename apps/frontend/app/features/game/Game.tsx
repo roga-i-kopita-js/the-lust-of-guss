@@ -5,14 +5,15 @@ import { Button } from "react-aria-components";
 
 export type GameProps = {
   game: Round;
-  hitInfo?: HitInfo;
+  hitInfo: HitInfo;
   touch: (game: Round) => void;
+  playerID: string;
 };
-export const Game: FC<GameProps> = ({ game, touch, hitInfo }) => {
+export const Game: FC<GameProps> = ({ game, touch, hitInfo, playerID }) => {
   const seconds = useRoundTimer(game.startedAt);
 
   const onTouch = (): void => {
-    if (seconds <= 0) {
+    if (hitInfo.status === "active") {
       touch(game);
     }
   };
@@ -21,7 +22,7 @@ export const Game: FC<GameProps> = ({ game, touch, hitInfo }) => {
     <div className={"flex flex-col items-center"}>
       <h1 className={"mb-8"}>Round id: {game.id}</h1>
 
-      {seconds > 0 && (
+      {hitInfo.status === "pending" && (
         <p className={"mb-8 text-green-400"}>
           До начала осталось: {seconds} секунд
         </p>
@@ -29,8 +30,14 @@ export const Game: FC<GameProps> = ({ game, touch, hitInfo }) => {
 
       {hitInfo && (
         <div>
-          <p>Total: {hitInfo.totalClicks}</p>
-          <p>Score: {hitInfo.playerScore}</p>
+          <p>Total: {hitInfo.hp}</p>
+          <p>
+            Score:
+            {
+              hitInfo.leaderboard.find((value) => value.playerId === playerID)
+                ?.score
+            }
+          </p>
           {hitInfo.winner && (
             <p className={"text-green-400"}>
               Winner: {hitInfo.winner.username}

@@ -75,9 +75,7 @@ export default function Games(params: Route.ComponentProps) {
   const [data, setData] = useState<RoundListResponse>(
     params.loaderData.gameList,
   );
-  useEffect(() => {
-    setData(params.loaderData.gameList);
-  }, [params.loaderData.gameList]);
+  const fetcher = useFetcher();
 
   useEffect(() => {
     const handleCreate = (d: Round) => {
@@ -96,8 +94,6 @@ export default function Games(params: Route.ComponentProps) {
     };
   }, [client]);
   // ------------------------------------------------------------
-
-  const fetcher = useFetcher();
 
   return (
     <>

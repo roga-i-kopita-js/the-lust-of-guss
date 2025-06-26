@@ -13,7 +13,6 @@ import { SocketWithToken, WsAuthGuard } from "../user/ws-auth.guard";
 import { HitInfo } from "./round.service";
 import { UseGuards } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { Round } from "../entities/Round.entity";
 
 @WebSocketGateway({ namespace: "/rounds", cors: true })
 @UseGuards(WsAuthGuard)
@@ -32,15 +31,15 @@ export class RoundGateway {
     return await this.roundService.hit(data.id, client.data.tokenMeta);
   }
 
-  @OnEvent("round.hit")
+  @OnEvent("round")
   @Roles({ action: "read", entity: "round" })
-  onRoundHit(payload: HitInfo) {
-    this.server.emit("round.hit", payload);
+  onRoundHit(payload: HitInfo): void {
+    this.server.emit("round", payload);
   }
 
   @OnEvent("round.create")
   @Roles({ action: "read", entity: "round" })
-  onRoundCreate(payload: Round) {
+  onRoundCreate(payload: HitInfo): void {
     this.server.emit("round.create", payload);
   }
 }

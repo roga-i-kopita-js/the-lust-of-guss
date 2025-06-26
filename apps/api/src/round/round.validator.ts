@@ -75,3 +75,8 @@ export class RoundListOptions {
   @IsISO8601()
   endedAt?: Date;
 }
+
+export class HitInfoOptions {
+  @IsString()
+  id: string;
+}

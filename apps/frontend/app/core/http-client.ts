@@ -1,4 +1,4 @@
-import type { Credentials, Round, RoundListResponse } from "./types";
+import type { Credentials, HitInfo, Round, RoundListResponse } from "./types";
 import { type ParsedQuery, withQuery } from "ufo";
 const isErrorResponse = (data: unknown): data is { message: string } => {
   return (
@@ -101,6 +101,23 @@ export class HttpClient {
     }
 
     return res.items[0];
+  }
+
+  public async geHitInfoById(id: string): Promise<HitInfo> {
+    const data = await fetch(this.getPath("round/hit-info", { id }), {
+      method: "GET",
+      headers: {
+        Authorization: this.token ?? "",
+        "Content-Type": "application/json",
+      },
+    });
+    const res = (await data.json()) as HitInfo | { message: string };
+
+    if (isErrorResponse(res)) {
+      throw new Error(res.message);
+    }
+
+    return res;
   }
 
   public async createGame(options: {
